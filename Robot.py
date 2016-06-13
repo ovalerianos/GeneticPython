@@ -27,40 +27,99 @@ class Robot:
  		self.moves = self.moves + 1
  		if self.get_next_action() == 0:
  			return
- 		if self.maze.get_position_value(x,y) == 4:
+ 		if self.maze.get_position_value(self.x_position,self.y_position) == 4:
  			return
  		if self.moves > self.maxMoves:
  			return
- 		#self.ma
+ 		self.make_next_action()
+
+
+ def run_final(self):
+ 	 while True:
+ 	 	self.moves = self.moves + 1
+ 	 	if self.get_next_action() == 0:
+ 			return
+ 		if self.maze.get_position_value(self.x_position,self.y_position) == 4:
+ 			return
+ 		if self.moves > self.maxMoves:
+ 			return
+ 		self.make_next_action()
+
+
+ def calc_sensor_actions(self,sensorActionsStr):
+ 	 numActions    = len(sensorActionsStr)/2
+ 	 sensorActions = range(numActions)
+
+ 	 for i in range(len(sensorActionsStr)):
+ 	 	sensorAction = 0
+ 	 	if sensorActionsStr[i*2] == 1:
+ 	 		sensorAction = sensorAction + 2
+ 	 	if sensorActionsStr[ (i*2) + 1] == 1:
+ 	 		sensorAction = sensorAction + 1
+        sensorActions[i] = sensorAction
+        
+     return sensorActions
+
 
 
  def make_next_action(self):
 
  	if self.get_next_action() == 1:
- 		currentX = self.x_position
- 		currentY = self.y_position
+ 	  currentX = self.x_position
+ 	  currentY = self.y_position
 
- 	if Direction.NORTH == self.heading:
- 		self.y_position = y_position - 1
+ 	  if Direction.NORTH == self.heading:
+ 	    self.y_position = y_position - 1
  		if self.y_position < 0:
- 			self.y_position = 0
- 	elif Direction.EAST == self.heading:
+ 		   self.y_position = 0
+ 	  elif Direction.EAST == self.heading:
+ 	    self.x_position = self.x_position + 1
+ 	    if self.x_position > self.maze.get_max_x():
+ 	       self.x_position = self.maze.get_max_x()
+ 	  elif Direction.SOUTH == self.heading:
+ 	  	self.y_position = self.y_position + 1
+ 	  	if self.y_position > self.maze.get_max_y():
+ 	  	   self.y_position = self.maze.get_max_y()
+ 	  elif Direction.WEST == self.heading:
+ 	  	self.x_position = self.x_position - 1 
+ 	  	if self.x_position < 0 
+ 	  	   self.x_position = 0
+
+ 	  if self.maze.is_wall(self.x_position,self.y_position) == True:
+ 	  	 self.x_position = currentX
+ 	  	 self.y_position = currentY
+ 	  else:
+ 	  	 if currentX != self.x_position or currentY != self.y_position:
+ 	  	 	self.route.add(self.get_position_value())
+ 	  	 	self.lst_direccion.add(self.heading)
+ 	  	 	self.lst_sensor_value.add(self.sensor_value)
+ 	
+ 	elif self.get_next_action() == 2:
  		
+ 		if Direction.NORTH == self.heading:
+ 			self.heading = Direction.EAST
+ 		elif Direction.EAST == self.heading:
+			self.heading = Direction.SOUTH
+ 		elif Direction.SOUTH == self.heading:
+ 			self.heading = Direction.WEST
+ 		elif Direction.WEST == self.heading:
+ 			self.heading = Direction.NORTH
 
+ 	elif self.get_next_action() == 3:
 
+ 		if Direction.NORTH == self.heading:
+ 			self.heading = Direction.WEST
+ 		elif Direction.EAST == self.heading:
+			self.heading = Direction.NORTH
+ 		elif Direction.SOUTH == self.heading:
+ 			self.heading = Direction.EAST
+ 		elif Direction.WEST == self.heading:
+ 			self.heading = Direction.SOUTH
 
+ 	self.sensor_value = -1
 
  def get_next_action(self):
  	return self.sensor_actions[self.get_sensor_value()]
-
- def get_heading(self):
- 	return self.heading
-
- def get_lst_direcction(self):
- 	return self.lst_direccion
-
- def get_lst_sensdor_value(self):
- 	return self.lst_sensor_value
 
  def get_sensor_value(self):
  	if self.sensor_value > -1:
@@ -121,9 +180,14 @@ class Robot:
  def is_wall(self,x,y):
  	return self.get_position_value(x,y) == 1
 
+ def get_heading(self):
+ 	return self.heading
 
+ def get_lst_direcction(self):
+ 	return self.lst_direccion
 
-
+ def get_lst_sensdor_value(self):
+ 	return self.lst_sensor_value
 
 
 
@@ -133,3 +197,6 @@ class Direction:
 	SOUTH   = "SOUTH"
 	WEST    = "WEST"
 	UNKNOWN = "UNKNOWN"
+
+	def __init__(self):
+		self.UNKNOWN = "UNKNOWN"
